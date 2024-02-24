@@ -1,30 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:listinha/src/home/widgets/delete_dialog.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
 
 class TaskRow extends StatelessWidget {
   final List<Task> tasks;
   final int index;
   final bool checkbox;
+  final void Function()? onPressedCheck;
+  final void Function() onPressedDelete;
 
   const TaskRow({
     super.key,
     required this.tasks,
     required this.checkbox,
     required this.index,
+    required this.onPressedCheck,
+    required this.onPressedDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Checkbox(
-          value: checkbox,
-          onChanged: (value) {},
+        InkWell(
+          onTap: onPressedCheck,
+          child: Row(
+            children: [
+              Checkbox(
+                value: checkbox,
+                onChanged: (value) {},
+              ),
+              Text(tasks[index].description),
+            ],
+          ),
         ),
-        Text(tasks[index].description),
         const Spacer(),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => DeleteDialog(
+                onPressedDelete: onPressedDelete,
+                nomeItem: 'tarefa',
+              ),
+            );
+          },
           icon: const Icon(Icons.cancel_outlined),
         ),
       ],

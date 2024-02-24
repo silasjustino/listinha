@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:listinha/src/home/services/taskboard_service.dart';
 import 'package:listinha/src/home/widgets/custom_drawer.dart';
+import 'package:listinha/src/home/widgets/rename_dialog.dart';
 import 'package:listinha/src/home/widgets/task_card.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
 import 'package:listinha/src/shared/widgets/user_image_button.dart';
@@ -125,51 +126,19 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           showDialog<String>(
             context: context,
-            builder: (BuildContext context) => Dialog(
-              alignment: AlignmentDirectional.center,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.sizeOf(context).width - 150,
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              label: Text('Nome da lista'),
-                            ),
-                            controller: listNameController,
-                            focusNode: _focusNode,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20, right: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            final board = TaskBoard(
-                              Uuid.v4(),
-                              listNameController.text,
-                            );
+            builder: (BuildContext context) => RenameDialog(
+              controller: listNameController,
+              focusNode: _focusNode,
+              onPressed: () {
+                final board = TaskBoard(
+                  Uuid.v4(),
+                  listNameController.text,
+                );
+                taskBoardService.saveTaskBoard(board);
 
-                            Modular.to.pushNamed('./task', arguments: board);
-                          },
-                          child: const Text('Criar'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                Modular.to.pushNamed('./task', arguments: board);
+              },
+              nomeItem: 'lista',
             ),
           );
         },
