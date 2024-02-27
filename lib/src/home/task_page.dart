@@ -75,21 +75,33 @@ class _TaskPageState extends State<TaskPage> {
             IconButton(
               onPressed: () {
                 boardTitleController.text = board.title;
+                bool checkboxValue;
+                checkboxValue = board.enable;
 
                 showDialog(
                   context: context,
                   builder: (context) => RenameDialog(
                     controller: boardTitleController,
                     focusNode: _focusNode,
+                    nomeItem: 'lista',
+                    list: true,
+                    checkboxValue: checkboxValue,
+                    onChangedCheckbox: (value) {
+                      checkboxValue = value;
+                    },
                     onPressed: () {
-                      taskBoardService.renameTaskBoard(
-                        boardTitleController.text,
-                        board,
-                      );
+                      taskBoardService
+                        ..renameTaskBoard(
+                          boardTitleController.text,
+                          board,
+                        )
+                        ..toggleTaskBoard(
+                          enable: checkboxValue,
+                          model: board,
+                        );
                       setState(() {});
                       Navigator.pop(context);
                     },
-                    nomeItem: 'lista',
                   ),
                 );
               },
@@ -271,6 +283,7 @@ class _TaskPageState extends State<TaskPage> {
                   Navigator.pop(context);
                 },
                 nomeItem: 'tarefa',
+                list: false,
               ),
             );
           },

@@ -35,12 +35,6 @@ SegmentedButtonThemeData _segmentedButtonTheme(ColorScheme theme) =>
       style: ButtonStyle(
         textStyle: MaterialStateProperty.resolveWith<TextStyle>(
           (states) {
-            if (states.contains(MaterialState.selected)) {
-              return const TextStyle(
-                fontSize: 11,
-              );
-            }
-
             return const TextStyle(
               fontSize: 12,
             );

@@ -1,21 +1,54 @@
 import 'package:flutter/material.dart';
 
-class RenameDialog extends StatelessWidget {
+// ignore: must_be_immutable
+class RenameDialog extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final void Function() onPressed;
   final String nomeItem;
+  final bool list;
+  bool? checkboxValue;
+  // ignore: avoid_positional_boolean_parameters
+  final void Function(bool value)? onChangedCheckbox;
 
-  const RenameDialog({
+  RenameDialog({
     super.key,
     required this.controller,
     required this.focusNode,
     required this.onPressed,
     required this.nomeItem,
+    required this.list,
+    this.checkboxValue,
+    this.onChangedCheckbox,
   });
 
   @override
+  State<RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<RenameDialog> {
+  @override
   Widget build(BuildContext context) {
+    Widget activeList = Container();
+
+    if (widget.list) {
+      activeList = Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Checkbox(
+              value: widget.checkboxValue ?? true,
+              onChanged: (value) => setState(() {
+                widget.checkboxValue = value;
+                widget.onChangedCheckbox!(value!);
+              }),
+            ),
+          ),
+          const Text('Ativa'),
+        ],
+      );
+    }
+
     return Dialog(
       alignment: AlignmentDirectional.center,
       child: Column(
@@ -32,10 +65,10 @@ class RenameDialog extends StatelessWidget {
                   child: TextFormField(
                     autofocus: true,
                     decoration: InputDecoration(
-                      label: Text('Nome da $nomeItem'),
+                      label: Text('Nome da ${widget.nomeItem}'),
                     ),
-                    controller: controller,
-                    focusNode: focusNode,
+                    controller: widget.controller,
+                    focusNode: widget.focusNode,
                   ),
                 ),
               ],
@@ -44,10 +77,11 @@ class RenameDialog extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 20, right: 20),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                activeList,
                 ElevatedButton(
-                  onPressed: onPressed,
+                  onPressed: widget.onPressed,
                   child: const Text('Salvar'),
                 ),
               ],
