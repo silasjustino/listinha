@@ -32,20 +32,17 @@ class _RenameDialogState extends State<RenameDialog> {
     Widget activeList = Container();
 
     if (widget.list) {
-      activeList = Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: Checkbox(
-              value: widget.checkboxValue ?? true,
-              onChanged: (value) => setState(() {
-                widget.checkboxValue = value;
-                widget.onChangedCheckbox!(value!);
-              }),
-            ),
-          ),
-          const Text('Ativa'),
-        ],
+      activeList = Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: CheckboxListTile(
+          controlAffinity: ListTileControlAffinity.leading,
+          title: const Text('Ativa'),
+          value: widget.checkboxValue ?? true,
+          onChanged: (value) => setState(() {
+            widget.checkboxValue = value;
+            widget.onChangedCheckbox!(value!);
+          }),
+        ),
       );
     }
 
@@ -79,7 +76,10 @@ class _RenameDialogState extends State<RenameDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                activeList,
+                SizedBox(
+                  width: 150,
+                  child: activeList,
+                ),
                 ElevatedButton(
                   onPressed: widget.onPressed,
                   child: const Text('Salvar'),

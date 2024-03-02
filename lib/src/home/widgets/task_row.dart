@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:listinha/src/home/widgets/delete_dialog.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
@@ -22,17 +24,18 @@ class TaskRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        InkWell(
-          onTap: onPressedCheck,
-          child: Row(
-            children: [
-              Checkbox(
+        Row(
+          children: [
+            SizedBox(
+              width: 300,
+              child: CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(tasks[index].description),
                 value: checkbox,
-                onChanged: (value) {},
+                onChanged: (_) => onPressedCheck?.call(),
               ),
-              Text(tasks[index].description),
-            ],
-          ),
+            ),
+          ],
         ),
         const Spacer(),
         IconButton(

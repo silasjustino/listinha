@@ -62,6 +62,8 @@ class _TaskPageState extends State<TaskPage> {
     final tasks = board.tasks;
     final progress = getProgress(tasks);
 
+    final completed = tasks.where((task) => task.completed).toList();
+
     return WillPopScope(
       onWillPop: () async {
         await Modular.to.pushNamed('./');
@@ -141,6 +143,7 @@ class _TaskPageState extends State<TaskPage> {
                           horizontal: 20,
                         ),
                         child: ListView.builder(
+                          physics: const ClampingScrollPhysics(),
                           itemCount: tasks
                               .where((task) => task.completed == false)
                               .length,
@@ -157,11 +160,13 @@ class _TaskPageState extends State<TaskPage> {
                               tasks: notCompleted,
                               checkbox: false,
                               index: index,
-                              onPressedCheck: () => setState(() {
-                                taskBoardService.changeTaskStats(
-                                  notCompleted[index],
-                                );
-                              }),
+                              onPressedCheck: () {
+                                setState(() {
+                                  taskBoardService.changeTaskStats(
+                                    notCompleted[index],
+                                  );
+                                });
+                              },
                               onPressedDelete: () => setState(() {
                                 taskBoardService.deleteTask(
                                   notCompleted[index],
@@ -200,32 +205,26 @@ class _TaskPageState extends State<TaskPage> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                         child: ListView.builder(
-                          itemCount: tasks
-                              .where((task) => task.completed == true)
-                              .length,
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: completed.length,
                           itemBuilder: (_, index) {
-                            final completed = <Task>[];
-
-                            for (var i = 0; i < tasks.length; i++) {
-                              if (tasks[i].completed == true) {
-                                completed.add(tasks[i]);
-                              }
-                            }
+                            final task = completed[index];
 
                             return TaskRow(
                               tasks: completed,
-                              checkbox: true,
+                              checkbox: task.completed,
                               index: index,
                               onPressedCheck: () => setState(() {
                                 taskBoardService.changeTaskStats(
-                                  completed[index],
+                                  task,
                                 );
                               }),
                               onPressedDelete: () => setState(() {
                                 taskBoardService.deleteTask(
-                                  completed[index],
+                                  task,
                                   board,
                                 );
+                                Navigator.pop(context);
                               }),
                             );
                           },

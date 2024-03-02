@@ -56,6 +56,7 @@ class _HomePageState extends State<HomePage> {
       );
     } else {
       widget = PageView(
+        physics: const NeverScrollableScrollPhysics(),
         controller: _pageController,
         children: [
           AllListsPage(
