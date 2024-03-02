@@ -128,20 +128,16 @@ class _TaskPageState extends State<TaskPage> {
         ),
         body: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 60, bottom: 60),
-              child: SizedBox(
-                height: MediaQuery.sizeOf(context).height,
-                width: MediaQuery.sizeOf(context).width,
-                child: Column(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 20,
-                        ),
+            PageView(
+              physics: const ClampingScrollPhysics(),
+              children: [
+                SizedBox(
+                  height: MediaQuery.sizeOf(context).height,
+                  width: MediaQuery.sizeOf(context).width,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
                         child: ListView.builder(
                           physics: const ClampingScrollPhysics(),
                           itemCount: tasks
@@ -178,19 +174,16 @@ class _TaskPageState extends State<TaskPage> {
                           },
                         ),
                       ),
-                    ),
-                    Container(
-                      color: theme.colorScheme.background,
-                      height: 80,
-                      width: MediaQuery.sizeOf(context).width,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
+                      Container(
+                        color: theme.colorScheme.background,
+                        height: 80,
+                        width: MediaQuery.sizeOf(context).width,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 25, right: 25),
                           child: Row(
                             children: [
                               Text(
-                                'Realizadas',
+                                'Pendentes',
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -199,11 +192,16 @@ class _TaskPageState extends State<TaskPage> {
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: MediaQuery.sizeOf(context).height,
+                  width: MediaQuery.sizeOf(context).width,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
                         child: ListView.builder(
                           physics: const ClampingScrollPhysics(),
                           itemCount: completed.length,
@@ -230,31 +228,28 @@ class _TaskPageState extends State<TaskPage> {
                           },
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              color: theme.colorScheme.background,
-              height: 80,
-              width: MediaQuery.sizeOf(context).width,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 25, right: 25),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Pendentes',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        color: theme.colorScheme.background,
+                        height: 80,
+                        width: MediaQuery.sizeOf(context).width,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 25, right: 25),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Realizadas',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
             LinearProgressIndicator(
               value: progress,

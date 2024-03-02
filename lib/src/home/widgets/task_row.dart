@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:listinha/src/home/widgets/delete_dialog.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
