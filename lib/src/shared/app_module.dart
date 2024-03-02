@@ -3,6 +3,7 @@ import 'package:listinha/src/configuration/configuration_page.dart';
 import 'package:listinha/src/configuration/services/configuration_service.dart';
 import 'package:listinha/src/home/home_module.dart';
 import 'package:listinha/src/home/services/taskboard_service.dart';
+import 'package:listinha/src/home/services/taskview_service.dart';
 import 'package:listinha/src/shared/services/realm/realm_config.dart';
 import 'package:listinha/src/shared/stores/app_store.dart';
 import 'package:realm/realm.dart';
@@ -14,6 +15,7 @@ class AppModule extends Module {
       ..addInstance<Realm>(Realm(config))
       ..addSingleton<ConfigurationService>(RealmConfigurationService.new)
       ..addSingleton<RealmTaskBoardService>(RealmTaskBoardService.new)
+      ..addSingleton<TaskViewService>(RealmTaskViewService.new)
       ..addSingleton(AppStore.new);
   }
 

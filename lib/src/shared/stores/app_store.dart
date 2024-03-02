@@ -6,4 +6,5 @@ class AppStore {
   final themeMode = RxNotifier(ThemeMode.system);
   final syncDate = RxNotifier<DateTime?>(null);
   final taskboards = ValueNotifier<List<TaskBoard>>([]);
+  final taskViewMode = RxNotifier('compacted');
 }

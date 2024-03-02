@@ -5,6 +5,7 @@ import 'package:listinha/src/home/widgets/delete_dialog.dart';
 import 'package:listinha/src/home/widgets/rename_dialog.dart';
 import 'package:listinha/src/home/widgets/task_row.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
+import 'package:listinha/src/shared/stores/app_store.dart';
 import 'package:realm/realm.dart';
 
 class TaskPage extends StatefulWidget {
@@ -17,11 +18,26 @@ class TaskPage extends StatefulWidget {
 }
 
 class _TaskPageState extends State<TaskPage> {
+  final store = Modular.get<AppStore>();
   final taskBoardService = Modular.get<RealmTaskBoardService>();
   late TextEditingController boardTitleController;
   late TextEditingController taskDescriptionController;
+  late Widget taskTypeWidget;
 
   late FocusNode _focusNode;
+
+  double getProgress(List<Task> tasks) {
+    final tasksCompleted = tasks.where((task) => task.completed).length;
+    double value;
+
+    if (tasks.isEmpty) {
+      value = 0;
+    } else {
+      value = tasksCompleted / tasks.length;
+    }
+
+    return value;
+  }
 
   @override
   void initState() {
@@ -41,19 +57,6 @@ class _TaskPageState extends State<TaskPage> {
     super.dispose();
   }
 
-  double getProgress(List<Task> tasks) {
-    final tasksCompleted = tasks.where((task) => task.completed).length;
-    double value;
-
-    if (tasks.isEmpty) {
-      value = 0;
-    } else {
-      value = tasksCompleted / tasks.length;
-    }
-
-    return value;
-  }
-
   @override
   Widget build(BuildContext context) {
     final board = widget.board;
@@ -63,6 +66,278 @@ class _TaskPageState extends State<TaskPage> {
     final progress = getProgress(tasks);
 
     final completed = tasks.where((task) => task.completed).toList();
+    final notCompleted =
+        tasks.where((task) => task.completed == false).toList();
+
+    bool extendedNotSelected;
+    bool compactedNotSelected;
+
+    if (taskBoardService.store.taskViewMode.value == 'compacted') {
+      extendedNotSelected = true;
+      compactedNotSelected = false;
+
+      taskTypeWidget = Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 60, bottom: 60),
+            child: SizedBox(
+              height: MediaQuery.sizeOf(context).height,
+              width: MediaQuery.sizeOf(context).width,
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 20,
+                      ),
+                      child: ListView.builder(
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: tasks
+                            .where((task) => task.completed == false)
+                            .length,
+                        itemBuilder: (_, index) {
+                          final notCompleted = <Task>[];
+
+                          for (var i = 0; i < tasks.length; i++) {
+                            if (tasks[i].completed == false) {
+                              notCompleted.add(tasks[i]);
+                            }
+                          }
+
+                          return TaskRow(
+                            tasks: notCompleted,
+                            checkbox: false,
+                            index: index,
+                            onPressedCheck: () {
+                              setState(() {
+                                taskBoardService.changeTaskStats(
+                                  notCompleted[index],
+                                );
+                              });
+                            },
+                            onPressedDelete: () => setState(() {
+                              taskBoardService.deleteTask(
+                                notCompleted[index],
+                                board,
+                              );
+                              Navigator.pop(context);
+                            }),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Container(
+                    color: theme.colorScheme.background,
+                    height: 80,
+                    width: MediaQuery.sizeOf(context).width,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 25, right: 25),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Realizadas',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      child: ListView.builder(
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: completed.length,
+                        itemBuilder: (_, index) {
+                          final task = completed[index];
+
+                          return TaskRow(
+                            tasks: completed,
+                            checkbox: task.completed,
+                            index: index,
+                            onPressedCheck: () => setState(() {
+                              taskBoardService.changeTaskStats(
+                                task,
+                              );
+                            }),
+                            onPressedDelete: () => setState(() {
+                              taskBoardService.deleteTask(
+                                task,
+                                board,
+                              );
+                              Navigator.pop(context);
+                            }),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            color: theme.colorScheme.background,
+            height: 80,
+            width: MediaQuery.sizeOf(context).width,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 25, right: 25),
+                child: Row(
+                  children: [
+                    Text(
+                      'Pendentes',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          LinearProgressIndicator(
+            value: progress,
+          ),
+        ],
+      );
+    } else {
+      extendedNotSelected = false;
+      compactedNotSelected = true;
+
+      taskTypeWidget = Stack(
+        children: [
+          PageView(
+            physics: const ClampingScrollPhysics(),
+            children: [
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height,
+                width: MediaQuery.sizeOf(context).width,
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
+                      child: ListView.builder(
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: notCompleted.length,
+                        itemBuilder: (_, index) {
+                          final task = notCompleted[index];
+
+                          return TaskRow(
+                            tasks: notCompleted,
+                            checkbox: task.completed,
+                            index: index,
+                            onPressedCheck: () {
+                              setState(() {
+                                taskBoardService.changeTaskStats(
+                                  notCompleted[index],
+                                );
+                              });
+                            },
+                            onPressedDelete: () => setState(() {
+                              taskBoardService.deleteTask(
+                                notCompleted[index],
+                                board,
+                              );
+                              Navigator.pop(context);
+                            }),
+                          );
+                        },
+                      ),
+                    ),
+                    Container(
+                      color: theme.colorScheme.background,
+                      height: 80,
+                      width: MediaQuery.sizeOf(context).width,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 25, right: 25),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Pendentes',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height,
+                width: MediaQuery.sizeOf(context).width,
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
+                      child: ListView.builder(
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: completed.length,
+                        itemBuilder: (_, index) {
+                          final task = completed[index];
+
+                          return TaskRow(
+                            tasks: completed,
+                            checkbox: task.completed,
+                            index: index,
+                            onPressedCheck: () => setState(() {
+                              taskBoardService.changeTaskStats(
+                                task,
+                              );
+                            }),
+                            onPressedDelete: () => setState(() {
+                              taskBoardService.deleteTask(
+                                task,
+                                board,
+                              );
+                              Navigator.pop(context);
+                            }),
+                          );
+                        },
+                      ),
+                    ),
+                    Container(
+                      color: theme.colorScheme.background,
+                      height: 80,
+                      width: MediaQuery.sizeOf(context).width,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 25, right: 25),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Realizadas',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          LinearProgressIndicator(
+            value: progress,
+          ),
+        ],
+      );
+    }
 
     return WillPopScope(
       onWillPop: () async {
@@ -74,188 +349,95 @@ class _TaskPageState extends State<TaskPage> {
           centerTitle: false,
           title: Text(board.title),
           actions: [
-            IconButton(
-              onPressed: () {
-                boardTitleController.text = board.title;
-                bool checkboxValue;
-                checkboxValue = board.enable;
-
-                showDialog(
-                  context: context,
-                  builder: (context) => RenameDialog(
-                    controller: boardTitleController,
-                    focusNode: _focusNode,
-                    nomeItem: 'lista',
-                    list: true,
-                    checkboxValue: checkboxValue,
-                    onChangedCheckbox: (value) {
-                      checkboxValue = value;
-                    },
-                    onPressed: () {
-                      taskBoardService
-                        ..renameTaskBoard(
-                          boardTitleController.text,
-                          board,
-                        )
-                        ..toggleTaskBoard(
-                          enable: checkboxValue,
-                          model: board,
-                        );
-                      setState(() {});
-                      Navigator.pop(context);
-                    },
-                  ),
-                );
-              },
-              icon: const Icon(Icons.edit),
-            ),
-            IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => DeleteDialog(
-                    onPressedDelete: () {
-                      taskBoardService.deleteTaskBoard(board);
-                      Modular.to.pushNamed('./');
-                    },
-                    nomeItem: 'lista',
-                  ),
-                );
-              },
-              icon: const Icon(Icons.delete),
-            ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            PageView(
-              physics: const ClampingScrollPhysics(),
-              children: [
-                SizedBox(
-                  height: MediaQuery.sizeOf(context).height,
-                  width: MediaQuery.sizeOf(context).width,
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
-                        child: ListView.builder(
-                          physics: const ClampingScrollPhysics(),
-                          itemCount: tasks
-                              .where((task) => task.completed == false)
-                              .length,
-                          itemBuilder: (_, index) {
-                            final notCompleted = <Task>[];
-
-                            for (var i = 0; i < tasks.length; i++) {
-                              if (tasks[i].completed == false) {
-                                notCompleted.add(tasks[i]);
-                              }
-                            }
-
-                            return TaskRow(
-                              tasks: notCompleted,
-                              checkbox: false,
-                              index: index,
-                              onPressedCheck: () {
-                                setState(() {
-                                  taskBoardService.changeTaskStats(
-                                    notCompleted[index],
-                                  );
-                                });
-                              },
-                              onPressedDelete: () => setState(() {
-                                taskBoardService.deleteTask(
-                                  notCompleted[index],
-                                  board,
-                                );
-                                Navigator.pop(context);
-                              }),
-                            );
-                          },
-                        ),
-                      ),
-                      Container(
-                        color: theme.colorScheme.background,
-                        height: 80,
-                        width: MediaQuery.sizeOf(context).width,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 25, right: 25),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Pendentes',
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+            PopupMenuButton(
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  child: Text('Ordenar'),
                 ),
-                SizedBox(
-                  height: MediaQuery.sizeOf(context).height,
-                  width: MediaQuery.sizeOf(context).width,
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
-                        child: ListView.builder(
-                          physics: const ClampingScrollPhysics(),
-                          itemCount: completed.length,
-                          itemBuilder: (_, index) {
-                            final task = completed[index];
-
-                            return TaskRow(
-                              tasks: completed,
-                              checkbox: task.completed,
-                              index: index,
-                              onPressedCheck: () => setState(() {
-                                taskBoardService.changeTaskStats(
-                                  task,
-                                );
-                              }),
-                              onPressedDelete: () => setState(() {
-                                taskBoardService.deleteTask(
-                                  task,
-                                  board,
-                                );
-                                Navigator.pop(context);
-                              }),
-                            );
+                PopupMenuItem(
+                  onTap: () {
+                    showMenu(
+                      context: context,
+                      position: const RelativeRect.fromLTRB(1, 0, 0, 0),
+                      items: [
+                        PopupMenuItem(
+                          enabled: compactedNotSelected,
+                          onTap: () {
+                            setState(() {
+                              store.taskViewMode.value = 'compacted';
+                            });
                           },
+                          child: const Text('Lista compacta'),
                         ),
-                      ),
-                      Container(
-                        color: theme.colorScheme.background,
-                        height: 80,
-                        width: MediaQuery.sizeOf(context).width,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 25, right: 25),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Realizadas',
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                        PopupMenuItem(
+                          enabled: extendedNotSelected,
+                          onTap: () {
+                            setState(() {
+                              store.taskViewMode.value = 'extended';
+                            });
+                          },
+                          child: const Text('Lista estendida'),
                         ),
+                      ],
+                    );
+                  },
+                  child: const Text('Visualizar'),
+                ),
+                PopupMenuItem(
+                  onTap: () {
+                    boardTitleController.text = board.title;
+                    bool checkboxValue;
+                    checkboxValue = board.enable;
+
+                    showDialog(
+                      context: context,
+                      builder: (context) => RenameDialog(
+                        controller: boardTitleController,
+                        focusNode: _focusNode,
+                        nomeItem: 'lista',
+                        list: true,
+                        checkboxValue: checkboxValue,
+                        onChangedCheckbox: (value) {
+                          checkboxValue = value;
+                        },
+                        onPressed: () {
+                          taskBoardService
+                            ..renameTaskBoard(
+                              boardTitleController.text,
+                              board,
+                            )
+                            ..toggleTaskBoard(
+                              enable: checkboxValue,
+                              model: board,
+                            );
+                          setState(() {});
+                          Navigator.pop(context);
+                        },
                       ),
-                    ],
-                  ),
+                    );
+                  },
+                  child: const Text('Editar'),
+                ),
+                PopupMenuItem(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => DeleteDialog(
+                        onPressedDelete: () {
+                          taskBoardService.deleteTaskBoard(board);
+                          Modular.to.pushNamed('./');
+                        },
+                        nomeItem: 'lista',
+                      ),
+                    );
+                  },
+                  child: const Text('Excluir'),
                 ),
               ],
             ),
-            LinearProgressIndicator(
-              value: progress,
-            ),
           ],
         ),
+        body: taskTypeWidget,
         floatingActionButton: FloatingActionButton.extended(
           icon: const Icon(Icons.add),
           label: const Text('Novo item'),

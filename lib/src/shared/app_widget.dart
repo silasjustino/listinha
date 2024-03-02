@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:listinha/src/configuration/services/configuration_service.dart';
 import 'package:listinha/src/home/services/taskboard_service.dart';
+import 'package:listinha/src/home/services/taskview_service.dart';
 import 'package:listinha/src/shared/stores/app_store.dart';
 import 'package:listinha/src/shared/themes/themes.dart';
 import 'package:rx_notifier/rx_notifier.dart';
@@ -16,6 +17,7 @@ class AppWidget extends StatefulWidget {
 class _AppWidgetState extends State<AppWidget> {
   final config = Modular.get<ConfigurationService>();
   final taskBoards = Modular.get<RealmTaskBoardService>();
+  final taskViewType = Modular.get<TaskViewService>();
   final appStore = Modular.get<AppStore>();
 
   @override
@@ -24,6 +26,7 @@ class _AppWidgetState extends State<AppWidget> {
 
     config.init();
     taskBoards.init();
+    taskViewType.init();
   }
 
   @override
