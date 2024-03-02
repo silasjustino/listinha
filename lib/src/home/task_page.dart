@@ -88,10 +88,7 @@ class _TaskPageState extends State<TaskPage> {
                   Expanded(
                     flex: 2,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 20,
-                      ),
+                      padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
                       child: ListView.builder(
                         physics: const ClampingScrollPhysics(),
                         itemCount: tasks
@@ -153,7 +150,7 @@ class _TaskPageState extends State<TaskPage> {
                   Expanded(
                     flex: 2,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
                       child: ListView.builder(
                         physics: const ClampingScrollPhysics(),
                         itemCount: completed.length,
