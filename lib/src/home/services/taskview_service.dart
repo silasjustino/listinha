@@ -33,7 +33,14 @@ class RealmTaskViewService implements TaskViewService, Disposable {
   }
 
   TaskViewModel _getConfiguration() {
-    return realm.all<TaskViewModel>().first;
+    try {
+      return realm.all<TaskViewModel>().first;
+    } catch (e) {
+      realm.write(() {
+        realm.add(TaskViewModel('compacted'));
+      });
+      return realm.all<TaskViewModel>().first;
+    }
   }
 
   void _saveConfiguration(String taskViewTypeName) {
