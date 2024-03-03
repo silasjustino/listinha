@@ -72,6 +72,8 @@ class _TaskPageState extends State<TaskPage> {
     bool extendedNotSelected;
     bool compactedNotSelected;
 
+    final pageViewController = PageController();
+
     if (taskBoardService.store.taskViewMode.value == 'compacted') {
       extendedNotSelected = true;
       compactedNotSelected = false;
@@ -79,7 +81,7 @@ class _TaskPageState extends State<TaskPage> {
       taskTypeWidget = Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 60, bottom: 60),
+            padding: const EdgeInsets.only(top: 60, bottom: 20),
             child: SizedBox(
               height: MediaQuery.sizeOf(context).height,
               width: MediaQuery.sizeOf(context).width,
@@ -88,24 +90,16 @@ class _TaskPageState extends State<TaskPage> {
                   Expanded(
                     flex: 2,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+                      padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
                       child: ListView.builder(
                         physics: const ClampingScrollPhysics(),
-                        itemCount: tasks
-                            .where((task) => task.completed == false)
-                            .length,
+                        itemCount: notCompleted.length,
                         itemBuilder: (_, index) {
-                          final notCompleted = <Task>[];
-
-                          for (var i = 0; i < tasks.length; i++) {
-                            if (tasks[i].completed == false) {
-                              notCompleted.add(tasks[i]);
-                            }
-                          }
+                          final task = notCompleted[index];
 
                           return TaskRow(
                             tasks: notCompleted,
-                            checkbox: false,
+                            checkbox: task.completed,
                             index: index,
                             onPressedCheck: () {
                               setState(() {
@@ -150,29 +144,42 @@ class _TaskPageState extends State<TaskPage> {
                   Expanded(
                     flex: 2,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: ListView.builder(
                         physics: const ClampingScrollPhysics(),
                         itemCount: completed.length,
                         itemBuilder: (_, index) {
                           final task = completed[index];
 
-                          return TaskRow(
-                            tasks: completed,
-                            checkbox: task.completed,
-                            index: index,
-                            onPressedCheck: () => setState(() {
-                              taskBoardService.changeTaskStats(
-                                task,
-                              );
-                            }),
-                            onPressedDelete: () => setState(() {
-                              taskBoardService.deleteTask(
-                                task,
-                                board,
-                              );
-                              Navigator.pop(context);
-                            }),
+                          Widget finalPadding = Container();
+
+                          if (index == completed.length - 1) {
+                            finalPadding = const SizedBox(
+                              height: 60,
+                            );
+                          }
+
+                          return Column(
+                            children: [
+                              TaskRow(
+                                tasks: completed,
+                                checkbox: task.completed,
+                                index: index,
+                                onPressedCheck: () => setState(() {
+                                  taskBoardService.changeTaskStats(
+                                    task,
+                                  );
+                                }),
+                                onPressedDelete: () => setState(() {
+                                  taskBoardService.deleteTask(
+                                    task,
+                                    board,
+                                  );
+                                  Navigator.pop(context);
+                                }),
+                              ),
+                              finalPadding,
+                            ],
                           );
                         },
                       ),
@@ -215,7 +222,8 @@ class _TaskPageState extends State<TaskPage> {
       taskTypeWidget = Stack(
         children: [
           PageView(
-            physics: const ClampingScrollPhysics(),
+            controller: pageViewController,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
               SizedBox(
                 height: MediaQuery.sizeOf(context).height,
@@ -257,7 +265,7 @@ class _TaskPageState extends State<TaskPage> {
                       height: 80,
                       width: MediaQuery.sizeOf(context).width,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 25, right: 25),
+                        padding: const EdgeInsets.only(left: 25, right: 10),
                         child: Row(
                           children: [
                             Text(
@@ -265,6 +273,17 @@ class _TaskPageState extends State<TaskPage> {
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              onPressed: () {
+                                pageViewController.animateToPage(
+                                  1,
+                                  duration: const Duration(milliseconds: 150),
+                                  curve: Curves.linear,
+                                );
+                              },
+                              icon: const Icon(Icons.arrow_forward_ios),
                             ),
                           ],
                         ),
@@ -311,7 +330,7 @@ class _TaskPageState extends State<TaskPage> {
                       height: 80,
                       width: MediaQuery.sizeOf(context).width,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 25, right: 25),
+                        padding: const EdgeInsets.only(left: 25, right: 10),
                         child: Row(
                           children: [
                             Text(
@@ -319,6 +338,17 @@ class _TaskPageState extends State<TaskPage> {
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              onPressed: () {
+                                pageViewController.animateToPage(
+                                  0,
+                                  duration: const Duration(milliseconds: 150),
+                                  curve: Curves.linear,
+                                );
+                              },
+                              icon: const Icon(Icons.arrow_back_ios),
                             ),
                           ],
                         ),
@@ -345,6 +375,7 @@ class _TaskPageState extends State<TaskPage> {
         appBar: AppBar(
           centerTitle: false,
           title: Text(board.title),
+          scrolledUnderElevation: 0,
           actions: [
             PopupMenuButton(
               itemBuilder: (context) => [
