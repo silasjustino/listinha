@@ -9,7 +9,6 @@ import 'package:listinha/src/home/views/pendents_lists_page.dart';
 import 'package:listinha/src/home/widgets/custom_drawer.dart';
 import 'package:listinha/src/home/widgets/rename_dialog.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
-import 'package:listinha/src/shared/widgets/user_image_button.dart';
 import 'package:realm/realm.dart';
 
 enum ListType { all, pendents, completed, desactivated }
@@ -22,8 +21,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  //Variables from FloatingActionButton
   late TextEditingController listNameController;
   late FocusNode _focusNode;
+
+  //Variables from SegmentedButton
   int listType = 0;
 
   @override
@@ -111,8 +113,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    //Modular Singletons
     final taskBoardService = Modular.get<RealmTaskBoardService>();
     final taskBoards = taskBoardService.store.taskboards.value;
+
+    //Lists Variables
     Widget widget;
     final _pageController = PageController();
 
@@ -149,10 +154,19 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: const Text('Listas'),
           scrolledUnderElevation: 0,
-          actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 8),
-              child: UserImageButton(),
+          actions: [
+            PopupMenuButton(
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  onTap: () {
+                    Modular.to.pushNamed('./searchBoard');
+                  },
+                  child: const Text('Pesquisar'),
+                ),
+                const PopupMenuItem(
+                  child: Text('Ordenar'),
+                ),
+              ],
             ),
           ],
         ),

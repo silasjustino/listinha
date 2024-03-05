@@ -21,7 +21,7 @@ ThemeData get darkTheme => ThemeData(
       colorScheme: _darkColorScheme,
       appBarTheme: AppBarTheme(
         centerTitle: true,
-        backgroundColor: _darkColorScheme.primaryContainer,
+        backgroundColor: _darkColorScheme.onPrimary,
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: _lightColorScheme.primary,

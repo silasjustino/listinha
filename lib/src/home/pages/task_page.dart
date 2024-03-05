@@ -131,7 +131,7 @@ class _TaskPageState extends State<TaskPage> {
                         child: Row(
                           children: [
                             Text(
-                              'Realizadas',
+                              'Concluídas',
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -146,40 +146,28 @@ class _TaskPageState extends State<TaskPage> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 60),
                         physics: const ClampingScrollPhysics(),
                         itemCount: completed.length,
                         itemBuilder: (_, index) {
                           final task = completed[index];
 
-                          Widget finalPadding = Container();
-
-                          if (index == completed.length - 1) {
-                            finalPadding = const SizedBox(
-                              height: 60,
-                            );
-                          }
-
-                          return Column(
-                            children: [
-                              TaskRow(
-                                tasks: completed,
-                                checkbox: task.completed,
-                                index: index,
-                                onPressedCheck: () => setState(() {
-                                  taskBoardService.changeTaskStats(
-                                    task,
-                                  );
-                                }),
-                                onPressedDelete: () => setState(() {
-                                  taskBoardService.deleteTask(
-                                    task,
-                                    board,
-                                  );
-                                  Navigator.pop(context);
-                                }),
-                              ),
-                              finalPadding,
-                            ],
+                          return TaskRow(
+                            tasks: completed,
+                            checkbox: task.completed,
+                            index: index,
+                            onPressedCheck: () => setState(() {
+                              taskBoardService.changeTaskStats(
+                                task,
+                              );
+                            }),
+                            onPressedDelete: () => setState(() {
+                              taskBoardService.deleteTask(
+                                task,
+                                board,
+                              );
+                              Navigator.pop(context);
+                            }),
                           );
                         },
                       ),
@@ -233,6 +221,7 @@ class _TaskPageState extends State<TaskPage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
                       child: ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 80),
                         physics: const ClampingScrollPhysics(),
                         itemCount: notCompleted.length,
                         itemBuilder: (_, index) {
@@ -279,7 +268,7 @@ class _TaskPageState extends State<TaskPage> {
                               onPressed: () {
                                 pageViewController.animateToPage(
                                   1,
-                                  duration: const Duration(milliseconds: 150),
+                                  duration: const Duration(milliseconds: 300),
                                   curve: Curves.linear,
                                 );
                               },
@@ -300,6 +289,7 @@ class _TaskPageState extends State<TaskPage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
                       child: ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 80),
                         physics: const ClampingScrollPhysics(),
                         itemCount: completed.length,
                         itemBuilder: (_, index) {
@@ -334,7 +324,7 @@ class _TaskPageState extends State<TaskPage> {
                         child: Row(
                           children: [
                             Text(
-                              'Realizadas',
+                              'Concluídas',
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -344,7 +334,7 @@ class _TaskPageState extends State<TaskPage> {
                               onPressed: () {
                                 pageViewController.animateToPage(
                                   0,
-                                  duration: const Duration(milliseconds: 150),
+                                  duration: const Duration(milliseconds: 300),
                                   curve: Curves.linear,
                                 );
                               },

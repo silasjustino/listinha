@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:intl/intl.dart';
 import 'package:listinha/src/shared/stores/app_store.dart';
+import 'package:listinha/src/shared/widgets/user_image_button.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
 class CustomDrawer extends StatefulWidget {
@@ -35,12 +36,36 @@ class _CustomDrawerState extends State<CustomDrawer> {
         }
       },
       children: [
+        const Padding(
+          padding: EdgeInsets.all(15),
+          child: Row(
+            children: [
+              UserImageButton(),
+              SizedBox(
+                width: 20,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Silas Justino',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text('silasjustino@gmail.com'),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const Divider(),
         Padding(
           padding:
-              const EdgeInsets.only(top: 28, right: 16, left: 16, bottom: 16),
+              const EdgeInsets.only(top: 15, right: 15, left: 15, bottom: 15),
           child: Text(
             'Opções',
-            style: Theme.of(context).textTheme.titleSmall,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
         NavigationDrawerDestination(

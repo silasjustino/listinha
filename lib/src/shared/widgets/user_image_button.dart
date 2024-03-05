@@ -9,6 +9,7 @@ class UserImageButton extends StatelessWidget {
       child: CircleAvatar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        radius: 25,
         child: const Text('SJ'),
       ),
     );
