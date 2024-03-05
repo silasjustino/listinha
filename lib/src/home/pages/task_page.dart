@@ -369,6 +369,11 @@ class _TaskPageState extends State<TaskPage> {
           actions: [
             PopupMenuButton(
               itemBuilder: (context) => [
+                PopupMenuItem(
+                  onTap: () =>
+                      Modular.to.pushNamed('./searchTask', arguments: board),
+                  child: const Text('Pesquisar'),
+                ),
                 const PopupMenuItem(
                   child: Text('Ordenar'),
                 ),
