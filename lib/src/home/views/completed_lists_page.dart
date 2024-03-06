@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:listinha/src/home/pages/home_page.dart';
+import 'package:listinha/src/home/models/sort_mode_model.dart';
 import 'package:listinha/src/home/widgets/task_card.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
 

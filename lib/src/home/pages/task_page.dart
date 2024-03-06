@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:listinha/src/home/models/sort_mode_model.dart';
 import 'package:listinha/src/home/services/taskboard_service.dart';
 import 'package:listinha/src/home/widgets/delete_dialog.dart';
 import 'package:listinha/src/home/widgets/rename_dialog.dart';
@@ -65,14 +66,30 @@ class _TaskPageState extends State<TaskPage> {
     final tasks = board.tasks;
     final progress = getProgress(tasks);
 
-    final completed = tasks.where((task) => task.completed).toList();
-    final notCompleted =
-        tasks.where((task) => task.completed == false).toList();
+    final _sortMode = SortMode.fromString(store.sortTaskTypeName.value);
+
+    List<Task> completed;
+    completed = tasks.where((task) => task.completed).toList();
+    List<Task> notCompleted;
+    notCompleted = tasks.where((task) => task.completed == false).toList();
 
     bool extendedNotSelected;
     bool compactedNotSelected;
 
     final pageViewController = PageController();
+
+    if (_sortMode == SortMode.newest) {
+      completed = completed.reversed.toList();
+      notCompleted = notCompleted.reversed.toList();
+    } else if (_sortMode == SortMode.byName) {
+      // ignore: cascade_invocations
+      completed.sort(
+        (a, b) => a.description.compareTo(b.description),
+      );
+      notCompleted.sort(
+        (a, b) => a.description.compareTo(b.description),
+      );
+    }
 
     if (taskBoardService.store.taskViewMode.value == 'compacted') {
       extendedNotSelected = true;
@@ -374,8 +391,49 @@ class _TaskPageState extends State<TaskPage> {
                       Modular.to.pushNamed('./searchTask', arguments: board),
                   child: const Text('Pesquisar'),
                 ),
-                const PopupMenuItem(
-                  child: Text('Ordenar'),
+                PopupMenuItem(
+                  onTap: () {
+                    showMenu(
+                      context: context,
+                      position: const RelativeRect.fromLTRB(1, 0, 0, 0),
+                      items: [
+                        PopupMenuItem<SortMode>(
+                          value: SortMode.oldest,
+                          enabled: _sortMode != SortMode.oldest,
+                          onTap: () {
+                            setState(() {
+                              store.sortTaskTypeName.value =
+                                  SortMode.oldest.name;
+                            });
+                          },
+                          child: const Text('Mais antigo'),
+                        ),
+                        PopupMenuItem<SortMode>(
+                          value: SortMode.newest,
+                          enabled: _sortMode != SortMode.newest,
+                          onTap: () {
+                            setState(() {
+                              store.sortTaskTypeName.value =
+                                  SortMode.newest.name;
+                            });
+                          },
+                          child: const Text('Mais recente'),
+                        ),
+                        PopupMenuItem<SortMode>(
+                          value: SortMode.byName,
+                          enabled: _sortMode != SortMode.byName,
+                          onTap: () {
+                            setState(() {
+                              store.sortTaskTypeName.value =
+                                  SortMode.byName.name;
+                            });
+                          },
+                          child: const Text('Ordem alfabética'),
+                        ),
+                      ],
+                    );
+                  },
+                  child: const Text('Ordenar'),
                 ),
                 PopupMenuItem(
                   onTap: () {

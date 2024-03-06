@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:listinha/src/home/models/sort_mode_model.dart';
 import 'package:listinha/src/home/services/taskboard_service.dart';
 import 'package:listinha/src/home/views/all_lists_page.dart';
 import 'package:listinha/src/home/views/completed_lists_page.dart';
@@ -13,19 +14,6 @@ import 'package:listinha/src/shared/stores/app_store.dart';
 import 'package:realm/realm.dart';
 
 enum ListType { all, pendents, completed, desactivated }
-
-enum SortMode {
-  oldest,
-  newest,
-  byName;
-
-  factory SortMode.fromString(String value) {
-    return SortMode.values.firstWhere(
-      (type) => type.name == value,
-      orElse: () => SortMode.oldest,
-    );
-  }
-}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
