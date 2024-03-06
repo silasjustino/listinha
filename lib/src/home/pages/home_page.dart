@@ -27,7 +27,9 @@ class _HomePageState extends State<HomePage> {
   late TextEditingController listNameController;
   late FocusNode _focusNode;
 
+  //Modular Singletons
   final store = Modular.get<AppStore>();
+  final taskBoardService = Modular.get<RealmTaskBoardService>();
 
   //Variables from SegmentedButton
   int listType = 0;
@@ -49,6 +51,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  //Dialog to exit app
   Future<bool> _onWillPop() async {
     return (await showDialog(
           context: context,
@@ -117,16 +120,27 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    //Modular Singletons
-    final taskBoardService = Modular.get<RealmTaskBoardService>();
-    final taskBoards = taskBoardService.store.taskboards.value;
+    //Boards
+    List<TaskBoard> taskBoards;
+    taskBoards = store.taskboards.value.toList();
 
-    final _sortMode = SortMode.fromString(store.sortBoardTypeName.value);
-
-    //Lists Variables
+    //Boards Variables
     Widget widget;
     final _pageController = PageController();
 
+    //SortMode
+    final _sortMode = SortMode.fromString(store.sortBoardTypeName.value);
+
+    //SortMode Conditional
+    if (_sortMode == SortMode.newest) {
+      taskBoards = taskBoards.reversed.toList();
+    } else if (_sortMode == SortMode.byName) {
+      taskBoards.sort(
+        (a, b) => a.title.compareTo(b.title),
+      );
+    }
+
+    //Board View Conditional
     if (taskBoards.isEmpty) {
       widget = const Padding(
         padding: EdgeInsets.fromLTRB(20, 80, 20, 70),
@@ -139,24 +153,21 @@ class _HomePageState extends State<HomePage> {
         children: [
           AllListsPage(
             taskBoards: taskBoards,
-            sortMode: _sortMode,
           ),
           PendentsListsPage(
             taskBoards: taskBoards,
-            sortMode: _sortMode,
           ),
           CompletedListsPage(
             taskBoards: taskBoards,
-            sortMode: _sortMode,
           ),
           DesactivatedListsPage(
             taskBoards: taskBoards,
-            sortMode: _sortMode,
           ),
         ],
       );
     }
 
+    //View
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
