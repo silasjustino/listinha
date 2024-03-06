@@ -9,9 +9,23 @@ import 'package:listinha/src/home/views/pendents_lists_page.dart';
 import 'package:listinha/src/home/widgets/custom_drawer.dart';
 import 'package:listinha/src/home/widgets/rename_dialog.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
+import 'package:listinha/src/shared/stores/app_store.dart';
 import 'package:realm/realm.dart';
 
 enum ListType { all, pendents, completed, desactivated }
+
+enum SortMode {
+  oldest,
+  newest,
+  byName;
+
+  factory SortMode.fromString(String value) {
+    return SortMode.values.firstWhere(
+      (type) => type.name == value,
+      orElse: () => SortMode.oldest,
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,6 +38,8 @@ class _HomePageState extends State<HomePage> {
   //Variables from FloatingActionButton
   late TextEditingController listNameController;
   late FocusNode _focusNode;
+
+  final store = Modular.get<AppStore>();
 
   //Variables from SegmentedButton
   int listType = 0;
@@ -117,6 +133,8 @@ class _HomePageState extends State<HomePage> {
     final taskBoardService = Modular.get<RealmTaskBoardService>();
     final taskBoards = taskBoardService.store.taskboards.value;
 
+    final _sortMode = SortMode.fromString(store.sortBoardTypeName.value);
+
     //Lists Variables
     Widget widget;
     final _pageController = PageController();
@@ -133,15 +151,19 @@ class _HomePageState extends State<HomePage> {
         children: [
           AllListsPage(
             taskBoards: taskBoards,
+            sortMode: _sortMode,
           ),
           PendentsListsPage(
             taskBoards: taskBoards,
+            sortMode: _sortMode,
           ),
           CompletedListsPage(
             taskBoards: taskBoards,
+            sortMode: _sortMode,
           ),
           DesactivatedListsPage(
             taskBoards: taskBoards,
+            sortMode: _sortMode,
           ),
         ],
       );
@@ -163,8 +185,49 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: const Text('Pesquisar'),
                 ),
-                const PopupMenuItem(
-                  child: Text('Ordenar'),
+                PopupMenuItem(
+                  onTap: () {
+                    showMenu(
+                      context: context,
+                      position: const RelativeRect.fromLTRB(1, 0, 0, 0),
+                      items: [
+                        PopupMenuItem<SortMode>(
+                          value: SortMode.oldest,
+                          enabled: _sortMode != SortMode.oldest,
+                          onTap: () {
+                            setState(() {
+                              store.sortBoardTypeName.value =
+                                  SortMode.oldest.name;
+                            });
+                          },
+                          child: const Text('Mais antigo'),
+                        ),
+                        PopupMenuItem<SortMode>(
+                          value: SortMode.newest,
+                          enabled: _sortMode != SortMode.newest,
+                          onTap: () {
+                            setState(() {
+                              store.sortBoardTypeName.value =
+                                  SortMode.newest.name;
+                            });
+                          },
+                          child: const Text('Mais recente'),
+                        ),
+                        PopupMenuItem<SortMode>(
+                          value: SortMode.byName,
+                          enabled: _sortMode != SortMode.byName,
+                          onTap: () {
+                            setState(() {
+                              store.sortBoardTypeName.value =
+                                  SortMode.byName.name;
+                            });
+                          },
+                          child: const Text('Ordem alfabética'),
+                        ),
+                      ],
+                    );
+                  },
+                  child: const Text('Ordenar'),
                 ),
               ],
             ),

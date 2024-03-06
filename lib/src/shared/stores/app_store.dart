@@ -7,4 +7,6 @@ class AppStore {
   final syncDate = RxNotifier<DateTime?>(null);
   final taskboards = ValueNotifier<List<TaskBoard>>([]);
   final taskViewMode = RxNotifier('extended');
+  final sortBoardTypeName = RxNotifier('oldest');
+  final sortTaskTypeName = RxNotifier('oldest');
 }

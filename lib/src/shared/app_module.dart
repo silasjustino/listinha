@@ -2,6 +2,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:listinha/src/configuration/configuration_page.dart';
 import 'package:listinha/src/configuration/services/configuration_service.dart';
 import 'package:listinha/src/home/home_module.dart';
+import 'package:listinha/src/home/services/sort_type_service.dart';
 import 'package:listinha/src/home/services/taskboard_service.dart';
 import 'package:listinha/src/home/services/taskview_service.dart';
 import 'package:listinha/src/shared/services/realm/realm_config.dart';
@@ -16,6 +17,7 @@ class AppModule extends Module {
       ..addSingleton<ConfigurationService>(RealmConfigurationService.new)
       ..addSingleton<RealmTaskBoardService>(RealmTaskBoardService.new)
       ..addSingleton<TaskViewService>(RealmTaskViewService.new)
+      ..addSingleton<SortTypeService>(RealmSortTypeService.new)
       ..addSingleton(AppStore.new);
   }
 
