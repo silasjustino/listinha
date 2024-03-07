@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class RenameDialog extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
-  final void Function() onPressed;
+  final void Function(GlobalKey<FormState> key) onPressed;
   final String nomeItem;
   final bool list;
   bool? checkboxValue;
@@ -30,6 +30,7 @@ class _RenameDialogState extends State<RenameDialog> {
   @override
   Widget build(BuildContext context) {
     Widget activeList = Container();
+    final key = GlobalKey<FormState>();
 
     if (widget.list) {
       activeList = Padding(
@@ -59,13 +60,29 @@ class _RenameDialogState extends State<RenameDialog> {
               children: [
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 150,
-                  child: TextFormField(
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      label: Text('Nome da ${widget.nomeItem}'),
+                  child: Form(
+                    key: key,
+                    child: TextFormField(
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        label: Text('Nome da ${widget.nomeItem}'),
+                      ),
+                      controller: widget.controller,
+                      textCapitalization: TextCapitalization.sentences,
+                      focusNode: widget.focusNode,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Não pode ser vazio';
+                        } else if (widget.list && value.length > 20) {
+                          return 'Nome muito grande';
+                        } else if (!widget.list && value.length > 40) {
+                          return 'Nome muito grande';
+                        }
+
+                        return null;
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
-                    controller: widget.controller,
-                    focusNode: widget.focusNode,
                   ),
                 ),
               ],
@@ -81,7 +98,7 @@ class _RenameDialogState extends State<RenameDialog> {
                   child: activeList,
                 ),
                 ElevatedButton(
-                  onPressed: widget.onPressed,
+                  onPressed: () => widget.onPressed(key),
                   child: const Text('Salvar'),
                 ),
               ],

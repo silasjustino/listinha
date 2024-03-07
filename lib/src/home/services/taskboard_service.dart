@@ -6,6 +6,7 @@ abstract class TaskBoardService {
   void init();
   void saveTaskBoard(TaskBoard model);
   void renameTaskBoard(String title, TaskBoard model);
+  void resetTaskBoard(TaskBoard model);
   void toggleTaskBoard({required bool enable, required TaskBoard model});
   void deleteTaskBoard(TaskBoard model);
   void saveTask(Task task, TaskBoard model);
@@ -54,6 +55,17 @@ class RealmTaskBoardService implements TaskBoardService {
   void renameTaskBoard(String title, TaskBoard model) {
     realm.write(() {
       model.title = title;
+    });
+  }
+
+  @override
+  void resetTaskBoard(TaskBoard model) {
+    final completedTasks = model.tasks.where((task) => task.completed).toList();
+
+    realm.write(() {
+      for (var i = 0; i < completedTasks.length; i++) {
+        completedTasks[i].completed = false;
+      }
     });
   }
 

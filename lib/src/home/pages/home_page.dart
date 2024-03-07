@@ -285,21 +285,23 @@ class _HomePageState extends State<HomePage> {
               builder: (BuildContext context) => RenameDialog(
                 controller: listNameController,
                 focusNode: _focusNode,
-                onPressed: () {
-                  final board = TaskBoard(
-                    Uuid.v4(),
-                    listNameController.text,
-                    enable: checkboxValue,
-                  );
-                  taskBoardService.saveTaskBoard(board);
-
-                  Modular.to.pushNamed('./task', arguments: board);
-                },
                 nomeItem: 'lista',
                 list: true,
                 checkboxValue: checkboxValue,
                 onChangedCheckbox: (value) {
                   checkboxValue = value;
+                },
+                onPressed: (key) {
+                  if (key.currentState!.validate()) {
+                    final board = TaskBoard(
+                      Uuid.v4(),
+                      listNameController.text,
+                      enable: checkboxValue,
+                    );
+                    taskBoardService.saveTaskBoard(board);
+
+                    Modular.to.pushNamed('./task', arguments: board);
+                  }
                 },
               ),
             );

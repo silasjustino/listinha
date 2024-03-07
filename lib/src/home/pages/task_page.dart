@@ -7,6 +7,7 @@ import 'package:listinha/src/home/views/compacted_tasks_page.dart';
 import 'package:listinha/src/home/views/extended_tasks_page.dart';
 import 'package:listinha/src/home/widgets/delete_dialog.dart';
 import 'package:listinha/src/home/widgets/rename_dialog.dart';
+import 'package:listinha/src/home/widgets/reset_dialog.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
 import 'package:listinha/src/shared/stores/app_store.dart';
 import 'package:realm/realm.dart';
@@ -234,53 +235,83 @@ class _TaskPageState extends State<TaskPage> {
                 ),
                 PopupMenuItem(
                   onTap: () {
-                    boardTitleController.text = board.title;
-                    bool checkboxValue;
-                    checkboxValue = board.enable;
-
-                    showDialog(
+                    showMenu(
                       context: context,
-                      builder: (context) => RenameDialog(
-                        controller: boardTitleController,
-                        focusNode: _focusNode,
-                        nomeItem: 'lista',
-                        list: true,
-                        checkboxValue: checkboxValue,
-                        onChangedCheckbox: (value) {
-                          checkboxValue = value;
-                        },
-                        onPressed: () {
-                          taskBoardService
-                            ..renameTaskBoard(
-                              boardTitleController.text,
-                              board,
-                            )
-                            ..toggleTaskBoard(
-                              enable: checkboxValue,
-                              model: board,
+                      position: const RelativeRect.fromLTRB(1, 0, 0, 0),
+                      items: [
+                        PopupMenuItem(
+                          onTap: () {
+                            boardTitleController.text = board.title;
+                            bool checkboxValue;
+                            checkboxValue = board.enable;
+
+                            showDialog(
+                              context: context,
+                              builder: (context) => RenameDialog(
+                                controller: boardTitleController,
+                                focusNode: _focusNode,
+                                nomeItem: 'lista',
+                                list: true,
+                                checkboxValue: checkboxValue,
+                                onChangedCheckbox: (value) {
+                                  checkboxValue = value;
+                                },
+                                onPressed: (key) {
+                                  if (key.currentState!.validate()) {
+                                    taskBoardService
+                                      ..renameTaskBoard(
+                                        boardTitleController.text,
+                                        board,
+                                      )
+                                      ..toggleTaskBoard(
+                                        enable: checkboxValue,
+                                        model: board,
+                                      );
+                                    setState(() {});
+                                    Navigator.pop(context);
+                                  }
+                                },
+                              ),
                             );
-                          setState(() {});
-                          Navigator.pop(context);
-                        },
-                      ),
+                          },
+                          child: const Text('Renomear'),
+                        ),
+                        PopupMenuItem(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => ResetDialog(
+                                onPressedReset: () {
+                                  setState(() {
+                                    taskBoardService.resetTaskBoard(board);
+                                    Modular.to.pop();
+                                  });
+                                },
+                                itemName: board.title,
+                              ),
+                            );
+                          },
+                          child: const Text('Resetar'),
+                        ),
+                        PopupMenuItem(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => DeleteDialog(
+                                onPressedDelete: () {
+                                  taskBoardService.deleteTaskBoard(board);
+                                  Modular.to.pushNamed('./');
+                                },
+                                nomeItem: 'lista',
+                              ),
+                            );
+                          },
+                          child: const Text('Excluir'),
+                        ),
+                      ],
                     );
                   },
                   child: const Text('Editar'),
-                ),
-                PopupMenuItem(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => DeleteDialog(
-                        onPressedDelete: () {
-                          taskBoardService.deleteTaskBoard(board);
-                          Modular.to.pushNamed('./');
-                        },
-                        nomeItem: 'lista',
-                      ),
-                    );
-                  },
-                  child: const Text('Excluir'),
                 ),
               ],
             ),
@@ -305,14 +336,16 @@ class _TaskPageState extends State<TaskPage> {
               builder: (BuildContext context) => RenameDialog(
                 controller: taskDescriptionController,
                 focusNode: _focusNode,
-                onPressed: () {
-                  final newTask = Task(
-                    Uuid.v4(),
-                    taskDescriptionController.text,
-                  );
-                  taskBoardService.saveTask(newTask, board);
-                  setState(() {});
-                  Navigator.pop(context);
+                onPressed: (key) {
+                  if (key.currentState!.validate()) {
+                    final newTask = Task(
+                      Uuid.v4(),
+                      taskDescriptionController.text,
+                    );
+                    taskBoardService.saveTask(newTask, board);
+                    setState(() {});
+                    Navigator.pop(context);
+                  }
                 },
                 nomeItem: 'tarefa',
                 list: false,
