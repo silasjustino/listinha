@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:listinha/src/home/widgets/task_row.dart';
 import 'package:listinha/src/shared/services/realm/models/task_model.dart';
 
-class CompactedTasksPage extends StatelessWidget {
+class ExtendedTasksPage extends StatelessWidget {
   final List<Task> notCompleted;
   final List<Task> completed;
   final TaskBoard board;
   final void Function(Task task) onPressedCheck;
   final void Function(Task task, TaskBoard board) onPressedDelete;
 
-  const CompactedTasksPage({
+  const ExtendedTasksPage({
     super.key,
     required this.notCompleted,
     required this.completed,
@@ -20,17 +20,22 @@ class CompactedTasksPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pageViewController = PageController();
     final theme = Theme.of(context);
 
-    return Column(
+    return PageView(
+      controller: pageViewController,
+      physics: const NeverScrollableScrollPhysics(),
       children: [
-        Expanded(
-          flex: 2,
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height,
+          width: MediaQuery.sizeOf(context).width,
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
                 child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 80),
                   physics: const ClampingScrollPhysics(),
                   itemCount: notCompleted.length,
                   itemBuilder: (_, index) {
@@ -50,32 +55,41 @@ class CompactedTasksPage extends StatelessWidget {
                 color: theme.colorScheme.background,
                 height: 80,
                 width: MediaQuery.sizeOf(context).width,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 25, right: 25),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Pendentes',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 25, right: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Pendentes',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          pageViewController.animateToPage(
+                            1,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.linear,
+                          );
+                        },
+                        icon: const Icon(Icons.arrow_forward_ios),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
         ),
-        Expanded(
-          flex: 2,
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height,
+          width: MediaQuery.sizeOf(context).width,
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                padding: const EdgeInsets.fromLTRB(10, 80, 10, 0),
                 child: ListView.builder(
                   padding: const EdgeInsets.only(bottom: 80),
                   physics: const ClampingScrollPhysics(),
@@ -97,20 +111,28 @@ class CompactedTasksPage extends StatelessWidget {
                 color: theme.colorScheme.background,
                 height: 80,
                 width: MediaQuery.sizeOf(context).width,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 25, right: 25),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Concluídas',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 25, right: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Concluídas',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          pageViewController.animateToPage(
+                            0,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.linear,
+                          );
+                        },
+                        icon: const Icon(Icons.arrow_back_ios),
+                      ),
+                    ],
                   ),
                 ),
               ),
