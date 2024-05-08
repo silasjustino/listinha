@@ -1,6 +1,6 @@
-# app
+# Listinha de to dos
 
-A new Flutter project.
+A flutter project where I learned how to persist data using Realm and SharedPreferences.
 
 ## Getting Started
 
